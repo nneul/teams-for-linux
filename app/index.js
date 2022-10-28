@@ -1,7 +1,9 @@
-const { app, ipcMain, desktopCapturer } = require('electron');
+const { app, ipcMain, desktopCapturer, systemPreferences } = require('electron');
 const path = require('path');
 const { LucidLog } = require('lucid-log');
 const isDev = require('electron-is-dev');
+const os = require('os');
+const isMac = os.platform() === 'darwin';
 const config = require('./config')(app.getPath('userData'));
 const logger = new LucidLog({
 	levels: config.appLogLevels.split(',')
@@ -33,7 +35,11 @@ if (config.proxyServer) app.commandLine.appendSwitch('proxy-server', config.prox
 app.commandLine.appendSwitch('auth-server-whitelist', config.authServerWhitelist);
 app.commandLine.appendSwitch('enable-ntlm-v2', config.ntlmV2enabled);
 app.commandLine.appendSwitch('try-supported-channel-layouts');
-if (process.env.XDG_SESSION_TYPE == 'wayland') {
+
+if (isMac){
+	requestCameraAccess();
+	
+} else if (process.env.XDG_SESSION_TYPE == 'wayland') {
 	logger.info('Running under Wayland, switching to PipeWire...');
 
 	const features = app.commandLine.hasSwitch('enable-features') ? app.commandLine.getSwitchValue('enable-features').split(',') : [];
@@ -71,8 +77,11 @@ if (!gotTheLock) {
 // eslint-disable-next-line no-unused-vars
 function playNotificationSound(event, audio) {
 	const file = path.join(__dirname, `${isDev ? '' : '../../'}assets/sounds/notification.wav`);
-	logger.debug(`Playing file: ${file}`);
-	player.play(file);
+	//TODO: Fix notification.wav location in macOS
+	if (file) {
+		logger.debug(`Playing file: ${file}`);
+		player.play(file);
+	}
 }
 
 function onRenderProcessGone() {
@@ -150,4 +159,11 @@ function handleCertificateError() {
 		config: config
 	};
 	certificateModule.onAppCertificateError(arg, logger);
+}
+
+async function requestCameraAccess() {
+	let status = systemPreferences.getMediaAccessStatus('camera');
+	logger.debug(`mac camera status ${status}`);
+	const permission = await systemPreferences.askForMediaAccess('camera');
+	logger.debug(`mac camera permission ${permission}`);
 }
