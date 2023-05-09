@@ -1,16 +1,16 @@
 {
   "name": "teams-for-linux",
-  "version": "1.0.85",
+  "version": "1.0.86",
   "main": "app/index.js",
   "description": "Unofficial client for Microsoft Teams for Linux",
-  "homepage": "https://github.com/IsmaelMartinez/teams-for-linux",
+  "homepage": "https://github.com/nneul/teams-for-linux",
   "keywords": [
     "Teams",
     "Microsoft Teams"
   ],
   "repository": {
     "type": "git",
-    "url": "git+ssh://github.com/IsmaelMartinez/teams-for-linux"
+    "url": "git+ssh://github.com/nneul/teams-for-linux"
   },
   "author": {
     "name": "Ismael Martinez",
